@@ -1,20 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camground Index page</title>
-</head>
-<body>
-    <h1>All Campgrounds!</h1>
-    <ul>
-        <% for(let campground of campgrounds){ %>
-            <a href="/campground/<%= campground._id%>" ><li><%= campground.title %></li></a>
-        <% } %>
-    </ul> 
+<% layout('layouts/boilerplate.ejs') %>
 
-    <a href="/campground/new">Add new campground</a>
+<h1>All Campgrounds!</h1>
+
+<% for(let campground of campgrounds){ %>
+    <div class="card mb-3" >
+        <div class="row">
+            <div class="col-md-4">
+                <img src="<%= campground.img%>" alt="nothing" class="img-fluid">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title"><%= campground.title %></h5>
+                    <p class="card-text"><%= campground.description %></p>
+                    <p class="card-text"><b>Price :- </b><i><%= campground.price %></i></p>
+                    <a href="/campground/<%= campground._id %>" class="btn btn-primary">View</a>
+                </div>
+
+            </div>
+        </div>
+    </div>    
+<% } %>
+ 
+
+
     
-</body>
-</html>
