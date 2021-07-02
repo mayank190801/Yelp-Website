@@ -7,6 +7,8 @@ const Review = require("../models/review");
 const catchAsync = require("../utils/catchAsync");
 const ExpressError = require("../utils/ExpressError");
 
+const { isLoggedIn } = require("../middleware");
+
 const { campgroundSchema, reviewSchema } = require("../schemas");
 
 //validation middleware
@@ -31,7 +33,7 @@ router.get(
 );
 
 //Go to a new from to create a new comment
-router.get("/new", (req, res) => {
+router.get("/new", isLoggedIn, (req, res) => {
 	res.render("campgrounds/new");
 });
 
@@ -56,6 +58,7 @@ router.get(
 router.post(
 	"/",
 	validateCampground,
+	isLoggedIn,
 	catchAsync(async (req, res, next) => {
 		const newCamp = new Campground(req.body.campground);
 		await newCamp.save();
@@ -67,6 +70,7 @@ router.post(
 //this section is what now i will build in order to improve my skills
 router.get(
 	"/:id/edit",
+	isLoggedIn,
 	catchAsync(async (req, res) => {
 		//we will take id from here, get the element and parse its info in edit
 		const campground = await Campground.findById(req.params.id);
@@ -78,6 +82,7 @@ router.get(
 router.patch(
 	"/:id",
 	validateCampground,
+	isLoggedIn,
 	catchAsync(async (req, res) => {
 		const updateCamp = await Campground.findByIdAndUpdate(
 			req.params.id,
@@ -92,6 +97,7 @@ router.patch(
 //should be simple enough
 router.delete(
 	"/:id",
+	isLoggedIn,
 	catchAsync(async (req, res, next) => {
 		const deletedCamp = await Campground.findByIdAndDelete(req.params.id);
 		req.flash("success", "campground succesfully DELETED");
