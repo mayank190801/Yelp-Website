@@ -18,6 +18,8 @@ const reviewRoutes = require("./routes/review");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 
+const morgan = require("morgan");
+
 //-------------------------------------------------
 
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
@@ -43,6 +45,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(morgan("dev"));
 
 const sessionConfig = {
 	secret: "thisisreallystupidmyfirendl",

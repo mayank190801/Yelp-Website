@@ -40,7 +40,9 @@ router.post(
 	}),
 	(req, res) => {
 		req.flash("success", "Welcome Back!");
+		//this shit is creating a lot of errors
 		const returnUrl = req.session.returnTo || "/campground";
+		console.log(returnUrl);
 		delete req.session.returnTo;
 		res.redirect(returnUrl);
 	}
