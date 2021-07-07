@@ -23,13 +23,15 @@ const reviewRoutes = require("./routes/review");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const morgan = require("morgan");
+const MongoStore = require("connect-mongo");
+const dbUrl = process.env.DB_URL;
 
 // const helmet = require("helmet");
 // const mongoSanitize = require("express-mongo-sanitize");
 
 //-------------------------------------------------
-
-mongoose.connect("mongodb://localhost:27017/yelp-camp", {
+//"mongodb://localhost:27017/yelp-camp"
+mongoose.connect(dbUrl, {
 	useNewUrlParser: true,
 	useCreateIndex: true,
 	useUnifiedTopology: true,
@@ -54,18 +56,29 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 // app.use(morgan("dev"));
 // app.use("mongoSanitize");
+//https://vast-brook-85404.herokuapp.com/
+const secret = process.env.SECRET || "thisisrandomshitforourwokr";
+
+const store = new MongoStore({
+	mongoUrl: dbUrl,
+	secret,
+	touchAfter: 24 * 60 * 60,
+});
+
+store.on("error", function (e) {
+	console.log("SESSION STORE ERROR", e);
+});
 
 const sessionConfig = {
-	name: "session",
-	secret: "thisisreallystupidmyfirendl",
+	secret,
 	resave: false,
 	saveUninitialized: true,
 	cookie: {
 		httpOnly: true,
-		//secure : true,
 		expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
 		maxAge: 1000 * 60 * 60 * 24 * 7,
 	},
+	store,
 };
 
 app.use(session(sessionConfig));
@@ -126,8 +139,9 @@ app.use((err, req, res, next) => {
 });
 
 //-------------------------------------------------
+const port = process.env.PORT || 3000;
 
 //listening on this port!!!
-app.listen(3000, () => {
-	console.log("Serving on port 3000!");
+app.listen(port, () => {
+	console.log(`Serving on port ${port}!!!`);
 });
