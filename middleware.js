@@ -30,17 +30,17 @@ module.exports.isAuthor = async (req, res, next) => {
 	if (!campground.author.equals(req.user._id)) {
 		req.flash("error", "You do not have permission to do that!");
 		// res.redirect(`/questions/${id}`);'
-		console.log("wtf");
+		// console.log("wtf");
 		return res.redirect(`/campground/${id}`);
 	}
 	next();
 };
 
 module.exports.isReviewAuthor = async (req, res, next) => {
-	console.log("this takes place");
+	// console.log("this takes place");
 	const { id, reviewId } = req.params;
-	console.log(id);
-	console.log("this takes placesdfsfsd");
+	// console.log(id);
+	// console.log("this takes placesdfsfsd");
 
 	const review = await Review.findById(reviewId);
 	if (!review.author.equals(req.user._id)) {

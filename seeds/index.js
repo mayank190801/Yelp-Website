@@ -21,6 +21,7 @@ db.once("open", () => {
 });
 
 const seed = async () => {
+	await Campground.deleteMany({});
 	for (let i = 0; i < arr.length; i++) {
 		let title = arr[i];
 		let description =
@@ -30,7 +31,12 @@ const seed = async () => {
 		const newCamp = new Campground({
 			title,
 			description,
-			img,
+			img: [
+				{
+					url: "https://res.cloudinary.com/mayank-singh19/image/upload/v1625642038/YelpCamp/vammdicgugvh6gjxoxpv.jpg",
+					filename: "YelpCamp/vammdicgugvh6gjxoxpv",
+				},
+			],
 			price,
 			author: "60de81bd54161d0a395c0ed2",
 		});

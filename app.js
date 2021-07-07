@@ -1,3 +1,11 @@
+//If we are in development we require these informations
+if (process.env.NODE_ENV !== "production") {
+	require("dotenv").config();
+}
+
+//It works
+// console.log(process.env.SECRET);
+
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
@@ -7,18 +15,17 @@ const ExpressError = require("./utils/ExpressError");
 const ejsMate = require("ejs-mate");
 const app = express();
 const User = require("./models/user");
-
 const session = require("express-session");
 const flash = require("connect-flash");
-
 const userRoutes = require("./routes/user");
 const campgroundRoutes = require("./routes/campground");
 const reviewRoutes = require("./routes/review");
-
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
-
 const morgan = require("morgan");
+
+// const helmet = require("helmet");
+// const mongoSanitize = require("express-mongo-sanitize");
 
 //-------------------------------------------------
 
@@ -45,14 +52,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(morgan("dev"));
+// app.use(morgan("dev"));
+// app.use("mongoSanitize");
 
 const sessionConfig = {
+	name: "session",
 	secret: "thisisreallystupidmyfirendl",
 	resave: false,
 	saveUninitialized: true,
 	cookie: {
 		httpOnly: true,
+		//secure : true,
 		expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
 		maxAge: 1000 * 60 * 60 * 24 * 7,
 	},
@@ -60,7 +70,6 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 app.use(flash());
-
 //-------------------------------------------------
 
 app.use(passport.initialize());
@@ -99,7 +108,7 @@ app.get("/fake", async (req, res) => {
 //-------------------------------------------------
 
 app.get("/", (req, res) => {
-	res.send("I AM THE HOMEPAGE");
+	res.render("home");
 });
 
 //show all the details related to campground

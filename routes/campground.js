@@ -6,100 +6,52 @@ const catchAsync = require("../utils/catchAsync");
 const ExpressError = require("../utils/ExpressError");
 const { isLoggedIn, validateCampground, isAuthor } = require("../middleware");
 const { campgroundSchema, reviewSchema } = require("../schemas");
+const camp = require("../controller/campgrounds");
+const { storage } = require("../cloudinary");
+const multer = require("multer");
+const upload = multer({ storage });
 
 //validation middleware
 
 //all the routes
-router.get(
-	"/",
-	catchAsync(async (req, res) => {
-		const campgrounds = await Campground.find({});
-		res.render("campgrounds/index", { campgrounds });
-	})
-);
+router.get("/", catchAsync(camp.index));
 
 //Go to a new from to create a new comment
-router.get("/new", isLoggedIn, (req, res) => {
-	res.render("campgrounds/new");
-});
+router.get("/new", isLoggedIn, camp.newRenderForm);
 
 //Go in details infromation regarding the campground
-router.get(
-	"/:id",
-	catchAsync(async (req, res) => {
-		const { id } = req.params;
-		const campground = await Campground.findById(id)
-			.populate({
-				path: "reviews",
-				populate: {
-					path: "author",
-				},
-			})
-			.populate("author");
-
-		//Important use of flash error!!!!
-		//Pretty cool if you ask me!
-		if (!campground) {
-			req.flash("error", "ERROROROROR, Not found the campground");
-			return res.redirect("/campground");
-		}
-		// console.log(campground);
-		res.render("campgrounds/show", { campground });
-	})
-);
+router.get("/:id", catchAsync(camp.getCampgroundDetails));
 
 //Add new comment using post request and go back to home page
 router.post(
 	"/",
-	validateCampground,
 	isLoggedIn,
-	catchAsync(async (req, res, next) => {
-		const newCamp = new Campground(req.body.campground);
-		newCamp.author = req.user._id;
-		await newCamp.save();
-		req.flash("success", "campground succesfully made");
-		res.redirect(`/campground/${newCamp._id}`);
-	})
+	upload.array("image"),
+	validateCampground,
+	catchAsync(camp.newCampground)
 );
 
+//upload.single("file"),
+// router.post("/", upload.array("image"), (req, res) => {
+// 	console.log(req.files);
+// 	res.send("This worked");
+// });
+
 //this section is what now i will build in order to improve my skills
-router.get(
-	"/:id/edit",
-	isLoggedIn,
-	isAuthor,
-	catchAsync(async (req, res) => {
-		const campground = await Campground.findById(req.params.id);
-		res.render("campgrounds/edit", { campground });
-	})
-);
+router.get("/:id/edit", isLoggedIn, isAuthor, catchAsync(camp.editRenderForm));
 
 //for updating a selected campground
 router.patch(
 	"/:id",
-	validateCampground,
 	isLoggedIn,
 	isAuthor,
-	catchAsync(async (req, res) => {
-		const updateCamp = await Campground.findByIdAndUpdate(
-			req.params.id,
-			req.body.campground
-		);
-		req.flash("success", "campground succesfully updated");
-		res.redirect(`/campground/${req.params.id}`);
-	})
+	upload.array("image"),
+	validateCampground,
+	catchAsync(camp.updateCampground)
 );
 
 //deleting a selected campground
 //should be simple enough
-router.delete(
-	"/:id",
-	isLoggedIn,
-	isAuthor,
-	catchAsync(async (req, res, next) => {
-		const deletedCamp = await Campground.findByIdAndDelete(req.params.id);
-		req.flash("success", "campground succesfully DELETED");
-		res.redirect("/campground");
-	})
-);
+router.delete("/:id", isLoggedIn, isAuthor, catchAsync(camp.deleteCampground));
 
 module.exports = router;
